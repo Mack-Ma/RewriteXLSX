@@ -18,22 +18,31 @@
 %   string, the cap of the names of the new files
 %
 % Example:
-% RewriteXLSX('hahaha','A',30,'row',20,'E:/Matlab_2016a/Hahaha','newhahaha');
+% SheetNames={'A','B','C','D'};
+% Nrow=[20 20 20 20];
+% RewriteXLSX('hahaha',SheetNames,30,'row',Nrow,'E:/Matlab_2016a/Hahaha','newhahaha');
+%
 
 function RewriteXLSX(originalfile, sheetname, Nnewfile, target, Ntarget, savedir, newfilename)
-[~,~,File0]=xlsread(originalfile,sheetname);
-Nrow=size(File0,1);
-Ncol=size(File0,2);
+fprintf('Now we start generating new xlsx files...\n')
 cd(savedir);
-for i=1:Nnewfile
-    switch target
-        case 'row'
-            Nnew=randsample(1:Nrow,Ntarget);
-            File1=File0(Nnew,:);
-        case 'col'
-            Nnew=randsample(1:Ncol,Ntarget);
-            File1=File0(:,Nnew);
+Nsheet=length(sheetname);
+for sheet=1:Nsheet
+    [~,~,File0]=xlsread(originalfile,sheetname{sheet});
+    Nrow=size(File0,1);
+    Ncol=size(File0,2);
+    for i=1:Nnewfile
+        switch target
+            case 'row'
+                Nnew=randsample(1:Nrow,Ntarget(sheet));
+                File1=File0(Nnew,:);
+            case 'col'
+                Nnew=randsample(1:Ncol,Ntarget(sheet));
+                File1=File0(:,Nnew);
+        end
+        xlswrite([newfilename, num2str(i)],File1,sheetname{sheet})
+        fprintf('File: %d, Sheet: %s, finished.\n',i,sheetname{sheet})
     end
-    xlswrite([newfilename, num2str(i)],File1)
 end
+fprintf('All done.')
 end
